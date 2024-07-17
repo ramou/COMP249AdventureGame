@@ -7,4 +7,9 @@ public class Floor implements Tile {
 		return '.';
 	}
 
+	@Override
+	public Object moveResult() {
+		return "You successfully moved.";
+	}
+
 }

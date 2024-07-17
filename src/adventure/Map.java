@@ -7,42 +7,31 @@ import java.io.IOException;
 
 public class Map {
 	private Tile[] board;
-	private Tile playerPos;
+	private int playerPos;
 	private int width = 0;
 	private int height = 0;
+	StringBuffer messages;
 	
-	public Map(Tile[] board, 
-			Tile playerPos, 
-			int width, int height) {
-		super();
-		this.board = board;
-		this.playerPos = playerPos;
-		this.width = width;
-		this.height = height;
-	}
-
-	public static Map loadMap(File mapFile) throws IOException {
-		
+	public Map(File mapFile, StringBuffer messages) throws IOException {
+		this.messages = messages;
 		//Read in all the stuff in the file
 		BufferedReader br = new BufferedReader(new FileReader(mapFile));
-		
-		int longestLine = 0;
-		int rows = 0;
+
 		//Figure out how wide the map is!
 		String line = br.readLine();
 		while(line != null) {
-			if(line.length() > longestLine) longestLine = line.length();
-			rows++;
+			if(line.length() > width) width = line.length();
+			height++;
 			line = br.readLine();	
 		}
 		//Figure out how many tiles there are
-		int boardSize = rows*longestLine;
-		Tile[] board = new Tile[boardSize];
+		int boardSize = height*width;
+		board = new Tile[boardSize];
 		//Initialize our array to the right size
 		br = new BufferedReader(new FileReader(mapFile));
 		line = br.readLine();
 		int currentPos = 0;
-		Tile playerPos = null;
+
 		while(line != null) {
 			for(int i = 0; i < line.length(); ++i) {
 				switch(line.charAt(i)) {
@@ -57,17 +46,17 @@ public class Map {
 					break;
 				case '@':
 					board[currentPos] = new Floor();
-					playerPos = board[currentPos]; 
+					playerPos = currentPos; 
 				}
 				++currentPos;
 			}
-			for(int i = 0; i < longestLine-line.length(); i++) {
+			for(int i = 0; i < width-line.length(); i++) {
 				board[currentPos] = new Wall();
 				++currentPos;
 			}
 			line = br.readLine();	
 		}
-		return new Map(board, playerPos, longestLine, rows);
+		
 		//go through the board text again and 
 		//  assign tiles
 	}
@@ -75,12 +64,59 @@ public class Map {
 	public void displayBoard() {
 		for(int row = 0; row < height; row++) {
 			for(int col = 0; col < width; col++) {
-				if(board[row*width+col] == playerPos) System.out.print('@');
+				if(row*width+col == playerPos) System.out.print('@');
 				else System.out.print(board[row*width+col].getSymbol());
 			}
 			System.out.println();
 		}
 	}
-	
+
+	public void doMove(DIR move) {
+		int newPos = playerPos;
+		switch (move) {
+		case NORTH:
+			newPos = playerPos - width;
+			break;
+		case WEST:
+			newPos = playerPos - 1;
+			break;
+		case SOUTH:
+			newPos = playerPos + width;
+			break;
+		case EAST:
+			newPos = playerPos + 1;
+			break;
+		}
+
+		if(board[newPos].canMove()) {
+			playerPos = newPos;
+		}
+		messages.append(board[newPos].moveResult());
+
+	}
+
+
+
+	public static enum DIR {
+		NORTH('w'),
+		EAST('d'),
+		SOUTH('s'),
+		WEST('a');
+
+		static DIR getDir(char c) {
+			for(DIR d: DIR.values()) {
+				if(d.key == c) return d;
+			}
+			return null;
+		}
+		
+		char key;
+		
+		
+		DIR(char c) {
+			this.key = c;
+		}
+		
+	}
 }
 

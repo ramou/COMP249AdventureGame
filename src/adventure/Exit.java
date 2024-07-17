@@ -7,4 +7,9 @@ public class Exit extends Floor {
 		return '<';
 	}
 
+	@Override
+	public Object moveResult() {
+		return "You found the exit!";
+	}
+
 }

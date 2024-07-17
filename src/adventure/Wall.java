@@ -7,4 +7,14 @@ public class Wall implements Tile {
 		return '#';
 	}
 
+	@Override
+	public boolean canMove() {
+		return false;
+	}
+	
+	@Override
+	public Object moveResult() {
+		return "BANG! You ran into a wall!";
+	}
+	
 }
